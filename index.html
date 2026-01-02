@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ku">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لیستی خواردن - مێنوو</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            animation: fadeIn 1s;
+        }
+
+        .header p {
+            font-size: 1.3em;
+            opacity: 0.9;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .categories {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            padding: 30px 20px;
+            background: #f8f9fa;
+            flex-wrap: wrap;
+        }
+
+        .category-btn {
+            padding: 12px 25px;
+            background: white;
+            border: 2px solid #667eea;
+            color: #667eea;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .category-btn:hover, .category-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .content {
+            padding: 40px 20px;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        .menu-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            animation: slideUp 0.5s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .menu-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+        }
+
+        .menu-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .menu-card-content {
+            padding: 20px;
+        }
+
+        .menu-card h3 {
+            color: #667eea;
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+
+        .menu-card .category {
+            display: inline-block;
+            background: #f0f3ff;
+            color: #667eea;
+            padding: 5px 15px;
+            border-radius: 15px;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+
+        .menu-card .desc {
+            color: #666;
+            font-size: 1em;
+            margin: 10px 0;
+            line-height: 1.5;
+        }
+
+        .menu-card .price {
+            font-size: 2em;
+            color: #764ba2;
+            font-weight: bold;
+            margin-top: 15px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .footer {
+            background: #f8f9fa;
+            padding: 30px;
+            text-align: center;
+            color: #666;
+            border-top: 3px solid #667eea;
+        }
+
+        .footer h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .search-box {
+            max-width: 500px;
+            margin: 0 auto 30px;
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #e9ecef;
+            border-radius: 30px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .no-results {
+            text-align: center;
+            color: #999;
+            font-size: 1.2em;
+            padding: 50px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🍽️ مێنووی ڕێستۆرانت</h1>
+            <p>بەخێربێن بۆ ڕێستۆرانتەکەمان</p>
+        </div>
+
+        <div class="categories" id="categories">
+            <button class="category-btn active" onclick="filterMenu('all')">هەموو</button>
+            <button class="category-btn" onclick="filterMenu('خواردن سەرەکی')">خواردن سەرەکی</button>
+            <button class="category-btn" onclick="filterMenu('خواردنی پێش خواردن')">پێش خواردن</button>
+            <button class="category-btn" onclick="filterMenu('خواردنەوەکان')">خواردنەوەکان</button>
+            <button class="category-btn" onclick="filterMenu('دەسەر')">دەسەر</button>
+        </div>
+
+        <div class="content">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="🔍 گەڕان بۆ خواردن..." onkeyup="searchMenu()">
+            </div>
+
+            <div class="menu-grid" id="menuGrid"></div>
+        </div>
+
+        <div class="footer">
+            <h3>سوپاس بۆ هەڵبژاردنی ئێمە! 🙏</h3>
+            <p>بۆ داواکاری، تکایە پەیوەندی بە گارسۆنەوە بکەن</p>
+        </div>
+    </div>
+
+    <script>
+        const menuItems = [
+            { 
+                id: 1, 
+                name: 'کوفتە', 
+                category: 'خواردن سەرەکی', 
+                price: 10000, 
+                desc: 'کوفتەی تازە لەگەڵ نان و سەوزە، بە تامی نایاب', 
+                image: 'https://images.unsplash.com/photo-1529042410759-befb1204b468?w=400' 
+            },
+            { 
+                id: 2, 
+                name: 'برنج و مریشک', 
+                category: 'خواردن سەرەکی', 
+                price: 10000, 
+                desc: 'برنج و مریشک   ', 
+                image: 'https://images.unsplash.com/photo-1603133872878-684f208fb84b?w=400' 
+            },
+            { 
+                id: 3, 
+                name: 'ماستاوە', 
+                category: 'خواردنەوەکان', 
+                price: 1500, 
+                desc: 'ماستاوەی ساردکراوە', 
+                image: 'https://th.bing.com/th/id/R.ff4d64d5ffd5ecd9e228222869366eb4?rik=Dc3doR5C%2fUnq3w&riu=http%3a%2f%2fwww.wishe.net%2fimgnews3%2f19820171355800_qalb.jpg&ehk=WPrWqlEmuhuFuoUak1YXo7e5RXsl%2f%2fuofpoigMnYALA%3d&risl=&pid=ImgRaw&r=0' 
+            },
+            { 
+                id: 4, 
+                name: 'نیسک', 
+                category: 'خواردنی پێش خواردن', 
+                price: 2000, 
+                desc: ' سوپ', 
+                image: 'https://images.ntviraq.com/nrt2/1332024044800_F.jpg' 
+            },
+            { 
+                id: 5, 
+                name: 'سالاتە', 
+                category: 'خواردنی پێش خواردن', 
+                price: 3000, 
+                desc: 'سالاتای تازە و تەندروست لەگەڵ سەوزەی جۆراوجۆر', 
+                image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400' 
+            },
+            { 
+                id: 6, 
+                name: 'بەستەنی', 
+                category: 'دەسەر', 
+                price: 3000, 
+                desc: 'بەستەنی سێ ڕەنگ - ڤانیلا، شکۆلاتە و فراولە', 
+                image: 'https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=400' 
+            },
+            { 
+                id: 7, 
+                name: 'یەک نەفەر کەباب', 
+                category: 'خواردن سەرەکی', 
+                price: 10000, 
+                desc: 'کەبابی لەسەر ئاگر برژاو لەگەڵ نان و گریل', 
+                image: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=400' 
+            },
+            { 
+                id: 8, 
+                name: ' هەنار', 
+                category: 'خواردنەوەکان', 
+                price: 2000, 
+                desc: ' هەناری فریش ', 
+                image: 'https://www.afarmgirlsdabbles.com/wp-content/uploads/2022/11/pomegranate-gin-and-tonic_afarmgirlsdabbles_01v-featured-1025x1536.jpg' 
+            },
+            { 
+                id: 9, 
+                name: 'دۆلمە', 
+                category: 'خواردن سەرەکی', 
+                price: 10000, 
+                desc: 'دۆلمەی گەڵای بە ڕیحانی تازە', 
+                image: 'https://i.ytimg.com/vi/A3whc4z1y8U/maxresdefault.jpg' 
+            },
+            { 
+                id: 10, 
+                name: 'پیتزای پیشەنگ', 
+                category: 'خواردن سەرەکی', 
+                price: 10000, 
+                desc: 'پیتزای گەورە لەگەڵ پەنیر و گۆشت', 
+                image: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=400' 
+            },
+            { 
+                id: 11, 
+                name: 'سوپ', 
+                category: 'خواردنی پێش خواردن', 
+                price: 1500, 
+                desc: 'سوپی گەرم و خۆش تام', 
+                image: 'https://images.unsplash.com/photo-1547592166-23ac45744acd?w=400' 
+            },
+            { 
+                id: 12, 
+                name: 'کەیک', 
+                category: 'دەسەر', 
+                price: 7000, 
+                desc: 'کەیکی شکۆلاتە بە کرێم', 
+                image: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400' 
+            }
+        ];
+
+        let currentCategory = 'all';
+        let currentSearch = '';
+
+        function renderMenu() {
+            const grid = document.getElementById('menuGrid');
+            let filtered = menuItems;
+
+            if (currentCategory !== 'all') {
+                filtered = filtered.filter(item => item.category === currentCategory);
+            }
+
+            if (currentSearch) {
+                filtered = filtered.filter(item => 
+                    item.name.includes(currentSearch) || 
+                    item.desc.includes(currentSearch)
+                );
+            }
+
+            if (filtered.length === 0) {
+                grid.innerHTML = '<div class="no-results">هیچ خواردنێک نەدۆزرایەوە 😔</div>';
+                return;
+            }
+
+            grid.innerHTML = filtered.map(item => `
+                <div class="menu-card">
+                    <img src="${item.image}" alt="${item.name}">
+                    <div class="menu-card-content">
+                        <span class="category">${item.category}</span>
+                        <h3>${item.name}</h3>
+                        <p class="desc">${item.desc}</p>
+                        <div class="price">
+                            💰 ${item.price.toLocaleString()} دینار
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterMenu(category) {
+            currentCategory = category;
+            
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            renderMenu();
+        }
+
+        function searchMenu() {
+            currentSearch = document.getElementById('searchInput').value;
+            renderMenu();
+        }
+
+        window.onload = () => renderMenu();
+    </script>
+</body>
+</html>
